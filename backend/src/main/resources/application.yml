@@ -1,0 +1,127 @@
+spring:
+  application:
+    name: vehicle-diagnostic-monitoring
+  
+  # Database Configuration (H2 for dev, PostgreSQL for prod)
+  datasource:
+    url: jdbc:h2:mem:monitoring_db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60000
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minutes
+  
+  # CORS Configuration
+  web:
+    cors:
+      allowed-origins: "http://localhost:4200"
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+
+# Azure Application Insights Configuration
+azure:
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATION_KEY:your-key-here}
+    connection-string: ${APPINSIGHTS_CONNECTION_STRING:InstrumentationKey=your-key-here}
+    enabled: true
+    web:
+      enable-web-mvc-telemetry: true
+    workspace-id: ${APPINSIGHTS_WORKSPACE_ID:your-workspace-id}
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Actuator Configuration for Health Checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Application Specific Configuration
+monitoring:
+  cache:
+    enabled: true
+    ttl: 600 # seconds
+  
+  query:
+    max-results: 1000
+    default-timespan: PT24H # Last 24 hours
+  
+  pdf:
+    output-dir: ${user.home}/monitoring-reports
+    template-path: classpath:templates/report-template.html
+  
+  workers:
+    - name: InitializationWorker
+      description: Initialize diagnostic session
+    - name: DataCollectionWorker
+      description: Collect vehicle data
+    - name: AnalysisWorker
+      description: Analyze diagnostic data
+    - name: ValidationWorker
+      description: Validate results
+    - name: ReportGenerationWorker
+      description: Generate diagnostic report
+    - name: NotificationWorker
+      description: Send notifications
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.vehicle.diagnostic: DEBUG
+    org.springframework.web: DEBUG
+    com.azure: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/monitoring-application.log
