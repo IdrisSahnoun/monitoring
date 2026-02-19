@@ -51,6 +51,6 @@ public interface DiagnosticSessionRepository extends JpaRepository<DiagnosticSes
     @Query("SELECT COUNT(s) FROM DiagnosticSession s WHERE s.status = :status")
     Long countByStatus(@Param("status") SessionStatus status);
     
-    @Query("SELECT AVG(s.durationMs) FROM DiagnosticSession s WHERE s.status = 'COMPLETED'")
+    @Query("SELECT AVG(s.durationMs) FROM DiagnosticSession s WHERE s.status = 'CLOSED'")
     Double getAverageSessionDuration();
 }

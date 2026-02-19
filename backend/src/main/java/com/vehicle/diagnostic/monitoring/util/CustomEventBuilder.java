@@ -41,7 +41,7 @@ public class CustomEventBuilder {
         Map<String, String> properties = new HashMap<>();
         
         properties.put("sessionId", event.getSessionId());
-        properties.put("workerName", event.getWorkerName());
+        properties.put("messageType", event.getMessageType().name()); // DiagCloud worker type
         properties.put("status", event.getStatus().name());
         properties.put("stepNumber", String.valueOf(event.getStepNumber()));
         

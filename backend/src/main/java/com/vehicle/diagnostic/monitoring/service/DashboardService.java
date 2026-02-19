@@ -38,9 +38,9 @@ public class DashboardService {
         
         return DashboardStatsDTO.builder()
                 .totalSessions((long) sessions.size())
-                .activeSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.IN_PROGRESS))
-                .completedSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.COMPLETED))
-                .failedSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.FAILED))
+                .activeSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.RUNNING))
+                .completedSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.CLOSED))
+                .failedSessions(countByStatus(sessions, DiagnosticSession.SessionStatus.ERROR))
                 .overallSuccessRate(calculateSuccessRate(sessions))
                 .averageSessionDuration(calculateAverageDuration(sessions))
                 .workerMetrics(calculateWorkerMetrics(events))
@@ -56,9 +56,9 @@ public class DashboardService {
     public Map<String, Object> getRealtimeStats() {
         log.info("Fetching real-time statistics");
         
-        Long activeSessions = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.IN_PROGRESS);
-        Long completedToday = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.COMPLETED);
-        Long failedToday = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.FAILED);
+        Long activeSessions = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.RUNNING);
+        Long completedToday = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.CLOSED);
+        Long failedToday = sessionRepository.countByStatus(DiagnosticSession.SessionStatus.ERROR);
         
         Map<String, Object> stats = new HashMap<>();
         stats.put("activeSessions", activeSessions);

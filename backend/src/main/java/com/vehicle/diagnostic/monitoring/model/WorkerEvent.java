@@ -25,10 +25,11 @@ public class WorkerEvent {
     private String id;
     
     @Column(nullable = false)
-    private String sessionId;
+    private String sessionId; // Maps to instanceId in DiagCloud
     
     @Column(nullable = false)
-    private String workerName;
+    @Enumerated(EnumType.STRING)
+    private MessageType messageType; // Type of Saga worker
     
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -66,6 +67,37 @@ public class WorkerEvent {
         createdAt = LocalDateTime.now();
     }
     
+    /**
+     * DiagCloud worker/saga message types
+     * Represents the different steps in the Starting and Shutdown sagas
+     */
+    public enum MessageType {
+        // Starting Saga Workers
+        BOOK_VCI_SERVER,
+        CREATE_PRODUCT_INSTANCE,
+        DETERMINE_PRODUCT_VERSION,
+        SEARCH_LICENSE,
+        CONFIGURE_SESSION,
+        INITIALIZE_DIAGNOSTICS,
+        START_COMMUNICATION,
+        VALIDATE_CONNECTION,
+        
+        // Shutdown Saga Workers
+        STOP_COMMUNICATION,
+        CLEANUP_RESOURCES,
+        RELEASE_VCI_SERVER,
+        SAVE_SESSION_DATA,
+        SEND_NOTIFICATION,
+        
+        // Common/Utility Workers
+        HEALTH_CHECK,
+        LOG_EVENT,
+        UPDATE_STATUS
+    }
+    
+    /**
+     * Execution status of a worker
+     */
     public enum WorkerStatus {
         STARTED,
         RUNNING,
