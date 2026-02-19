@@ -25,13 +25,22 @@ public class DiagnosticSession {
     private String id;
     
     @Column(nullable = false, unique = true)
-    private String sessionId;
+    private String sessionId; // Called "instanceId" in DiagCloud
+    
+    @Column(nullable = false)
+    private String operationId; // starting or shutdown
     
     @Column(nullable = false)
     private String vehicleId;
     
     @Column
     private String vehicleVin;
+    
+    @Column
+    private String productId; // Product image (e.g., WDB1, VCI_EXE1, DBX_V7.2.3)
+    
+    @Column
+    private String userId; // User who initiated the session
     
     @Column
     private String diagnosticType;
@@ -78,12 +87,17 @@ public class DiagnosticSession {
         updatedAt = LocalDateTime.now();
     }
     
+    /**
+     * DiagCloud session statuses
+     * Maps to the lifecycle of a diagnostic session in the Saga orchestrator
+     */
     public enum SessionStatus {
-        INITIATED,
-        IN_PROGRESS,
-        COMPLETED,
-        FAILED,
-        CANCELLED,
-        TIMEOUT
+        INITIALIZING,      // Session is being initialized
+        STARTING,          // Starting saga workers
+        RUNNING,           // Session in progress
+        CLOSED,            // Successfully completed
+        CANCELLED,         // Cancelled by user
+        ERROR,             // Failed with errors
+        SHUTDOWN_REQUESTED // Shutdown has been requested
     }
 }

@@ -19,7 +19,7 @@ public class WorkerEventDTO {
     
     private String eventId;
     private String sessionId;
-    private String workerName;
+    private String messageType; // DiagCloud worker/saga message type
     private String status;
     
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

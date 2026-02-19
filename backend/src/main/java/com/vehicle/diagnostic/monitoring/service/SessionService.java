@@ -113,13 +113,13 @@ public class SessionService {
         for (WorkerEvent event : events) {
             if (event.getStatus() == WorkerEvent.WorkerStatus.COMPLETED) {
                 log.info("  ✓ Step {}: {} - COMPLETED in {}ms",
-                        event.getStepNumber(), event.getWorkerName(), event.getExecutionTimeMs());
+                        event.getStepNumber(), event.getMessageType(), event.getExecutionTimeMs());
             } else if (event.getStatus() == WorkerEvent.WorkerStatus.FAILED) {
                 log.error("  ✗ Step {}: {} - FAILED: {}",
-                        event.getStepNumber(), event.getWorkerName(), event.getErrorDetails());
+                        event.getStepNumber(), event.getMessageType(), event.getErrorDetails());
             } else {
-                log.info("  ⏳ Step {}: {} - {}",
-                        event.getStepNumber(), event.getWorkerName(), event.getStatus());
+                log.debug("  ⏳ Step {}: {} - {}",
+                        event.getStepNumber(), event.getMessageType(), event.getStatus());
             }
         }
         
@@ -194,7 +194,7 @@ public class SessionService {
         return WorkerEventDTO.builder()
                 .eventId(event.getId())
                 .sessionId(event.getSessionId())
-                .workerName(event.getWorkerName())
+                .workerName(event.getMessageType() != null ? event.getMessageType().name() : null)
                 .status(event.getStatus().name())
                 .startTime(event.getStartTime())
                 .endTime(event.getEndTime())

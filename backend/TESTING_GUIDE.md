@@ -37,17 +37,21 @@ curl -X POST http://localhost:8080/api/mock-data/quick-setup
 ========================================
 📊 Generating 100 mock diagnostic sessions...
 ========================================
-✓ Created session 1/100: SESSION-A1B2C3D4 - Status: COMPLETED - Workers: 6/6
-  ✓ Worker InitializationWorker completed in 5234ms
-  ✓ Worker DataCollectionWorker completed in 8912ms
+✓ Created session 1/100: INST-A1B2C3D4 - Status: CLOSED - Workers: 8/8
+  ✓ Worker BOOK_VCI_SERVER completed in 5234ms
+  ✓ Worker CREATE_PRODUCT_INSTANCE completed in 8912ms
   ...
-✓ Created session 5/100: SESSION-X9Y8Z7W6 - Status: FAILED - Workers: 4/6
-  ⚠ Worker ValidationWorker FAILED: Data validation failed
+✓ Created session 5/100: INST-X9Y8Z7W6 - Status: ERROR - Workers: 4/8
+  ⚠ Worker SEARCH_LICENSE FAILED: License not found for product: DBX_V7.2.3
 ========================================
 ✅ Successfully created 100 mock sessions
-   - Completed: 70 (70%)
+   - Completed: 60 (60%)
    - Failed: 15 (15%)
-   - In Progress: 10 (10%)
+   - Running: 10 (10%)
+   - Starting: 7 (7%)
+   - Initializing: 5 (5%)
+   - Cancelled: 2 (2%)
+   - Shutdown Requested: 1 (1%)
 ========================================
 ```
 
@@ -75,7 +79,7 @@ Expected response:
 {
   "totalSessions": 100,
   "totalEvents": 600,
-  "completedSessions": 70,
+  "completedSessions": 60,
   "failedSessions": 15,
   "activeSessions": 10
 }
@@ -93,14 +97,19 @@ Expected response:
 
 **Check the logs to see worker status:**
 ```log
-🔍 Fetching session: SESSION-X9Y8Z7W6
-✓ Found session SESSION-X9Y8Z7W6 - Status: FAILED - Duration: 28901ms
-⚠ Session SESSION-X9Y8Z7W6 has 1 failed worker(s)
-  - ValidationWorker failed: Data validation failed
+🔍 Fetching session: INST-X9Y8Z7W6
+✓ Found session INST-X9Y8Z7W6 - Status: ERROR - Duration: 28901ms
+⚠ Session INST-X9Y8Z7W6 has 1 failed worker(s)
+  - SEARCH_LICENSE failed: License not found for product: DBX_V7.2.3
 ```
 **In API Responses:**
-- `status: "COMPLETED"` = Success
-- `status: "FAILED"` = Failure
+- `status: "CLOSED"` = Success
+- `status: "ERROR"` = Failure
+- `status: "RUNNING"` = In Progress
+- `status: "STARTING"` = Starting workers
+- `status: "INITIALIZING"` = Initializing
+- `status: "CANCELLED"` = User cancelled
+- `status: "SHUTDOWN_REQUESTED"` = Shutdown in progress
 - `errorDetails` field contains error message
 - `failedExecutions` counter in metrics
 
@@ -129,12 +138,12 @@ cur
 
 **Check the logs for detailed execution:**
 ```log
-🔍 Fetching worker events for session: SESSION-X9Y8Z7W6
-Found 4 worker events for session SESSION-X9Y8Z7W6
-  ✓ Step 1: InitializationWorker - COMPLETED in 5123ms
-  ✓ Step 2: DataCollectionWorker - COMPLETED in 7890ms
-  ✓ Step 3: AnalysisWorker - COMPLETED in 12345ms
-  ✗ Step 4: ValidationWorker - FAILED: Data validation failed
+🔍 Fetching worker events for session: INST-X9Y8Z7W6
+Found 4 worker events for session INST-X9Y8Z7W6
+  ✓ Step 1: BOOK_VCI_SERVER - COMPLETED in 5123ms
+  ✓ Step 2: CREATE_PRODUCT_INSTANCE - COMPLETED in 7890ms
+  ✓ Step 3: DETERMINE_PRODUCT_VERSION - COMPLETED in 12345ms
+  ✗ Step 4: SEARCH_LICENSE - FAILED: License not found for product: DBX_V7.2.3
 ```l -X POST http://localhost:8080/api/sessions/search `
   -H "Content-Type: application/json" `
   -d '@filter.json'
@@ -342,31 +351,48 @@ FLUSHALL
 
 ## Mock Data Characteristics
 
-The mock data generator creates realistic data with:
+The mock data generator creates realistic DiagCloud diagnostic with:
 
 ### Sessions Distribution
-- **70%** Completed successfully
-- **15%** Failed with errors
-- **10%** In progress
-- **5%** Initiated
+- **60%** CLOSED (Successfully completed) ✅
+- **15%** ERROR (Failed with errors) ❌
+- **10%** RUNNING (Some workers completed) ⏳
+- **7%** STARTING (Starting saga workers) 🔄
+- **5%** INITIALIZING (Just started) 🆕
+- **2%** CANCELLED (User cancelled) 🚫
+- **1%** SHUTDOWN_REQUESTED (Shutdown in progress) 🛑
 
 ### Worker Execution Times
-- **1-20 seconds** per worker
-- **Total session duration**: 10s - 2min for completed
+- **2-17 seconds** per worker
+- **Total session duration**: 20s - 3min for completed
 - **Failed sessions**: Stop at random worker with error
 
-### Vehicles & Types
-- 10 different vehicle IDs
-- 10 different VINs
-- 5 diagnostic types (FULL, ENGINE, ELECTRICAL, BRAKE, TRANSMISSION)
+### Products (DiagCloud Images)
+- WDB1, WDB2, VCI_EXE1, VCI_EXE2
+- DBX_V7.2.3, DBX_V7.3.1, DBX_V8.0.0
+- STAR_DIAG_V5, STAR_DIAG_V6, OEM_TOOL_V3
 
-### Workers
-1. InitializationWorker
-2. DataCollectionWorker
-3. AnalysisWorker
-4. ValidationWorker
-5. ReportGenerationWorker
-6. NotificationWorker
+### Users (DiagCloud Operators)
+- operator.oi@company.com, tech.support@company.com, admin@company.com
+- mechanic1@workshop.com, mechanic2@workshop.com
+- diagnostician@dealer.com, field.tech@service.com, qa.tester@company.com
+
+### Operation Types
+- **starting**: BOOK_VCI_SERVER → CREATE_PRODUCT_INSTANCE → DETERMINE_PRODUCT_VERSION → SEARCH_LICENSE → CONFIGURE_SESSION → INITIALIZE_DIAGNOSTICS → START_COMMUNICATION → VALIDATE_CONNECTION
+- **shutdown**: STOP_COMMUNICATION → SAVE_SESSION_DATA → CLEANUP_RESOURCES → RELEASE_VCI_SERVER → SEND_NOTIFICATION
+
+### Common Failure Scenarios
+Failed sessions include realistic DiagCloud error messages:
+1. "VCI Server booking failed - no available servers"
+2. "License not found for product: {productId}"
+3. "WRS 404 - Product version not available"
+4. "Communication initialization failed with vehicle ECU"
+5. "Kafka message delivery failed"
+6. "VCI connection timeout - check network connectivity"
+
+### Vehicles & Types
+- 10 different vehicle IDs and VINs
+- 5 diagnostic types (FULL, ENGINE, ELECTRICAL, BRAKE, TRANSMISSION)
 
 ### Time Distribution
 - **Quick Setup**: Random times within last 24 hours

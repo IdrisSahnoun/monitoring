@@ -56,7 +56,7 @@ public class ApplicationInsightsService {
         // customEvents
         // | where name == "WorkerExecution"
         // | where customDimensions.sessionId == '{sessionId}'
-        // | project timestamp, workerName=customDimensions.workerName, 
+        // | project timestamp, messageType=customDimensions.messageType, 
         //          status=customDimensions.status, duration=customDimensions.durationMs
         
         return new ArrayList<>();

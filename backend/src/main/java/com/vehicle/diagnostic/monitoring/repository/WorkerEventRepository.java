@@ -20,14 +20,14 @@ public interface WorkerEventRepository extends JpaRepository<WorkerEvent, String
     
     List<WorkerEvent> findBySessionIdOrderByStepNumberAsc(String sessionId);
     
-    List<WorkerEvent> findByWorkerName(String workerName);
+    List<WorkerEvent> findByMessageType(WorkerEvent.MessageType messageType);
     
-    List<WorkerEvent> findByWorkerNameAndStatus(String workerName, WorkerStatus status);
+    List<WorkerEvent> findByMessageTypeAndStatus(WorkerEvent.MessageType messageType, WorkerStatus status);
     
-    @Query("SELECT e FROM WorkerEvent e WHERE e.sessionId = :sessionId AND e.workerName = :workerName")
-    List<WorkerEvent> findBySessionIdAndWorkerName(
+    @Query("SELECT e FROM WorkerEvent e WHERE e.sessionId = :sessionId AND e.messageType = :messageType")
+    List<WorkerEvent> findBySessionIdAndMessageType(
         @Param("sessionId") String sessionId,
-        @Param("workerName") String workerName
+        @Param("messageType") WorkerEvent.MessageType messageType
     );
     
     @Query("SELECT e FROM WorkerEvent e WHERE e.startTime BETWEEN :startDate AND :endDate")
@@ -36,12 +36,12 @@ public interface WorkerEventRepository extends JpaRepository<WorkerEvent, String
         @Param("endDate") LocalDateTime endDate
     );
     
-    @Query("SELECT COUNT(e) FROM WorkerEvent e WHERE e.workerName = :workerName AND e.status = :status")
-    Long countByWorkerNameAndStatus(
-        @Param("workerName") String workerName,
+    @Query("SELECT COUNT(e) FROM WorkerEvent e WHERE e.messageType = :messageType AND e.status = :status")
+    Long countByMessageTypeAndStatus(
+        @Param("messageType") WorkerEvent.MessageType messageType,
         @Param("status") WorkerStatus status
     );
     
-    @Query("SELECT AVG(e.executionTimeMs) FROM WorkerEvent e WHERE e.workerName = :workerName AND e.status = 'COMPLETED'")
-    Double getAverageExecutionTimeByWorker(@Param("workerName") String workerName);
+    @Query("SELECT AVG(e.executionTimeMs) FROM WorkerEvent e WHERE e.messageType = :messageType AND e.status = 'COMPLETED'")
+    Double getAverageExecutionTimeByMessageType(@Param("messageType") WorkerEvent.MessageType messageType);
 }

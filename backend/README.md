@@ -1,8 +1,10 @@
 # Vehicle Diagnostic Monitoring System - Backend
 
+> **✨ DiagCloud Integration**: This system is now configured for DiagCloud specifications with proper session statuses, worker message types, operation types, and product IDs. See [DIAGCLOUD_UPDATES.md](DIAGCLOUD_UPDATES.md) for complete changes.
+
 ## Overview
 
-This Spring Boot application provides comprehensive monitoring and supervision capabilities for a cloud-based vehicle diagnostic platform. It integrates with Azure Application Insights to track worker execution, collect performance metrics, and generate detailed reports.
+This Spring Boot application provides comprehensive monitoring and supervision capabilities for DiagCloud's cloud-based vehicle diagnostic platform. It integrates with Azure Application Insights to track Saga worker execution, collect performance metrics, and generate detailed reports.
 
 ## Features
 
@@ -125,7 +127,7 @@ See [TESTING_GUIDE.md](TESTING_GUIDE.md) for detailed testing instructions.
 ### Dashboard
 - `GET /api/dashboard/stats` - Get dashboard statistics
 - `GET /api/dashboard/realtime` - Get real-time stats
-- `GET /api/dashboard/worker/{workerName}` - Get worker-specific stats
+- `GET /api/dashboard/worker/{messageType}` - Get worker-specific stats (e.g., BOOK_VCI_SERVER)
 
 ### Reports
 - `GET /api/reports/session/{sessionId}/pdf` - Download PDF report
@@ -195,7 +197,7 @@ The system tracks custom events for each worker:
 ```java
 Map<String, String> properties = new HashMap<>();
 properties.put("sessionId", sessionId);
-properties.put("workerName", workerName);
+properties.put("messageType", messageType.name()); // DiagCloud worker type
 properties.put("status", status);
 
 Map<String, Double> metrics = new HashMap<>();
@@ -221,7 +223,7 @@ customEvents
     avg(todouble(customDimensions.executionTimeMs)),
     percentile(todouble(customDimensions.executionTimeMs), 50),
     percentile(todouble(customDimensions.executionTimeMs), 95)
-by tostring(customDimensions.workerName)
+by tostring(customDimensions.messageType)
 ```
 
 ## Workers Configuration
