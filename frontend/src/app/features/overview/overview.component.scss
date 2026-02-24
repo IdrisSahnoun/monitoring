@@ -1,0 +1,381 @@
+.overview-container {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+// Header
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 500;
+    color: #263238;
+  }
+
+  .subtitle {
+    margin: 4px 0 0;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 14px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+
+    .period-select {
+      width: 160px;
+      margin-bottom: -1.25em;
+    }
+  }
+}
+
+// Metrics Cards
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  mat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px !important;
+  }
+
+  .metric-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.05);
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  .metric-info {
+    flex: 1;
+
+    h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    small {
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  // Card variants
+  &.primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    .metric-icon {
+      background-color: rgba(255, 255, 255, 0.2);
+      mat-icon { color: white; }
+    }
+
+    .metric-info p,
+    .metric-info small {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &.success {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+
+    .metric-icon {
+      background-color: rgba(255, 255, 255, 0.2);
+      mat-icon { color: white; }
+    }
+
+    .metric-info p,
+    .metric-info small {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &.error {
+    background: linear-gradient(135deg, #f44336 0%, #e91e63 100%);
+    color: white;
+
+    .metric-icon {
+      background-color: rgba(255, 255, 255, 0.2);
+      mat-icon { color: white; }
+    }
+
+    .metric-info p,
+    .metric-info small {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &.info {
+    background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+    color: white;
+
+    .metric-icon {
+      background-color: rgba(255, 255, 255, 0.2);
+      mat-icon { color: white; }
+    }
+
+    .metric-info p,
+    .metric-info small {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+// Real-time Banner
+.realtime-banner {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white;
+
+  .realtime-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .pulse-icon {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    h3 {
+      margin: 0;
+      flex: 1;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .timestamp {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  }
+
+  .realtime-stats {
+    display: flex;
+    gap: 32px;
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .label {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .value {
+        font-size: 18px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Charts
+.charts-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  &:last-child {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chart-card {
+  mat-card-header {
+    margin-bottom: 16px;
+  }
+
+  mat-card-title {
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 300px;
+
+    &.small {
+      height: 250px;
+    }
+  }
+}
+
+// Workers List
+.workers-list {
+  .worker-item {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .worker-name {
+      font-weight: 500;
+      font-size: 14px;
+      color: #263238;
+      margin-bottom: 4px;
+    }
+
+    .worker-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .executions {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+
+      .success-rate {
+        font-size: 14px;
+        font-weight: 500;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, 0.05);
+
+        &.high {
+          background-color: rgba(76, 175, 80, 0.1);
+          color: #4caf50;
+        }
+
+        &.low {
+          background-color: rgba(244, 67, 54, 0.1);
+          color: #f44336;
+        }
+      }
+    }
+
+    .worker-bar {
+      height: 6px;
+      background-color: rgba(0, 0, 0, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+
+      .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4caf50 0%, #8bc34a 100%);
+        transition: width 0.3s ease;
+      }
+    }
+  }
+
+  .no-data {
+    text-align: center;
+    padding: 32px;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+  }
+}
+
+// Loading & Empty States
+.loading-container {
+  text-align: center;
+  padding: 64px 32px;
+
+  p {
+    margin-top: 16px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px 32px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: rgba(0, 0, 0, 0.3);
+  }
+
+  h2 {
+    margin: 16px 0 8px;
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  p {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+// Responsive
+@media (max-width: 1200px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+
+  .realtime-stats {
+    flex-direction: column;
+    gap: 12px !important;
+  }
+}

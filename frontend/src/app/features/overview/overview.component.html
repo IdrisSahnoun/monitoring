@@ -1,0 +1,216 @@
+<div class="overview-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Overview</h1>
+      <p class="subtitle">DiagCloud Monitoring Dashboard</p>
+    </div>
+    <div class="header-actions">
+      <mat-form-field appearance="outline" class="period-select">
+        <mat-label>Time Period</mat-label>
+        <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
+          <mat-option value="1h">Last Hour</mat-option>
+          <mat-option value="24h">Last 24 Hours</mat-option>
+          <mat-option value="7d">Last 7 Days</mat-option>
+          <mat-option value="30d">Last 30 Days</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="refreshData()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && stats" class="dashboard-content">
+    
+    <!-- Key Metrics Cards -->
+    <div class="metrics-row">
+      <mat-card class="metric-card primary">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>assessment</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h2>{{ stats.totalSessions | number }}</h2>
+            <p>Total Sessions</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card success">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h2>{{ stats.completedSessions | number }}</h2>
+            <p>Completed</p>
+            <small>{{ stats.overallSuccessRate | number:'1.1-1' }}% success rate</small>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card error">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>error</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h2>{{ stats.failedSessions | number }}</h2>
+            <p>Failed</p>
+            <small>{{ ((stats.failedSessions / stats.totalSessions) * 100) | number:'1.1-1' }}% failure rate</small>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card info">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>play_circle</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h2>{{ stats.activeSessions | number }}</h2>
+            <p>Active Sessions</p>
+            <small>Running now</small>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="metric-card">
+        <mat-card-content>
+          <div class="metric-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="metric-info">
+            <h2>{{ formatDuration(stats.averageSessionDuration) }}</h2>
+            <p>Avg Duration</p>
+            <small>Per session</small>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Real-time Stats Banner -->
+    <mat-card *ngIf="realtimeStats" class="realtime-banner">
+      <mat-card-content>
+        <div class="realtime-header">
+          <mat-icon class="pulse-icon">bolt</mat-icon>
+          <h3>Real-Time Statistics</h3>
+          <span class="timestamp">{{ realtimeStats.timestamp | date:'short' }}</span>
+        </div>
+        <div class="realtime-stats">
+          <div class="stat-item">
+            <mat-icon>play_circle</mat-icon>
+            <span class="label">Active:</span>
+            <span class="value">{{ realtimeStats.activeSessions }}</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>check_circle</mat-icon>
+            <span class="label">Completed Today:</span>
+            <span class="value">{{ realtimeStats.completedToday }}</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>error</mat-icon>
+            <span class="label">Failed Today:</span>
+            <span class="value">{{ realtimeStats.failedToday }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <!-- Sessions Over Time -->
+      <mat-card class="chart-card large">
+        <mat-card-header>
+          <mat-card-title>Sessions Over Time</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas baseChart
+              [data]="lineChartData"
+              [options]="lineChartOptions"
+              type="line">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Success Rate -->
+      <mat-card class="chart-card small">
+        <mat-card-header>
+          <mat-card-title>Success vs Failure</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container small">
+            <canvas baseChart
+              [data]="doughnutChartData"
+              [options]="doughnutChartOptions"
+              type="doughnut">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Status Breakdown -->
+    <div class="charts-row">
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Sessions by Status</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <canvas baseChart
+              [data]="barChartData"
+              [options]="barChartOptions"
+              type="bar">
+            </canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Top Workers -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>Top Workers Performance</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="workers-list">
+            <div *ngFor="let worker of stats.workerMetrics?.slice(0, 5)" class="worker-item">
+              <div class="worker-name">{{ worker.messageType }}</div>
+              <div class="worker-stats">
+                <span class="executions">{{ worker.totalExecutions }} exec</span>
+                <span class="success-rate" [class.high]="worker.successRate >= 90" [class.low]="worker.successRate < 70">
+                  {{ worker.successRate | number:'1.1-1' }}%
+                </span>
+              </div>
+              <div class="worker-bar">
+                <div class="bar-fill" [style.width.%]="worker.successRate"></div>
+              </div>
+            </div>
+            <div *ngIf="!stats.workerMetrics || stats.workerMetrics.length === 0" class="no-data">
+              No worker data available
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !stats" class="empty-state">
+    <mat-icon>inbox</mat-icon>
+    <h2>No Data Available</h2>
+    <p>There are no diagnostic sessions in the selected time period.</p>
+  </div>
+</div>
